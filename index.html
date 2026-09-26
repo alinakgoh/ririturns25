@@ -310,8 +310,8 @@
 
   .polaroid-caption{
     margin-top: 8px;
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     color: var(--ink);
     text-align: center;
     white-space: nowrap;
@@ -372,10 +372,11 @@
   }
 
   .modal .num{
-    font-size: 13px;
+    font-size: 22px;
     font-weight: 700;
     color: var(--ink);
-    margin: 0 0 10px;
+    text-align: center;
+    margin: 0 0 14px;
   }
 
   .modal-photo{
@@ -395,6 +396,21 @@
   }
 
   .modal-photo.hidden{
+    display: none;
+  }
+
+  .field-label{
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 6px;
+  }
+
+  .modal-voice{
+    margin-bottom: 18px;
+  }
+
+  .modal-voice.hidden{
     display: none;
   }
 
@@ -460,6 +476,7 @@
     }
     .modal-backdrop.show .modal{ transform: translateY(0) scale(1); }
     .modal p.message{ font-size: 15px; }
+    .field-label{ font-size: 15px; }
   }
 
 </style>
@@ -494,7 +511,14 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalNum">
       <p class="num" id="modalNum"></p>
       <div class="modal-photo hidden" id="modalPhoto"></div>
-      <p class="message" id="modalMessage"></p>
+      <div class="modal-voice hidden" id="modalVoiceSection">
+        <p class="field-label">a birthday wish:</p>
+        <div id="modalVoiceSlot"></div>
+      </div>
+      <div class="modal-memory">
+        <p class="field-label">a treasured memory:</p>
+        <p class="message" id="modalMemoryText"></p>
+      </div>
       <div class="media-block" id="modalMedia"></div>
       <button class="close-btn" id="modalClose">Close</button>
     </div>
@@ -673,13 +697,10 @@
     return html;
   }
 
-  function attachVoice(container, item){
-    const wrap = document.createElement('div');
-    wrap.className = 'media-block';
+  function attachVoice(sectionEl, slotEl, item){
     const audio = document.createElement('audio');
     audio.controls = true;
-    wrap.appendChild(audio);
-    container.appendChild(wrap);
+    slotEl.appendChild(audio);
 
     if(item.voice){
       audio.src = item.voice;
@@ -691,7 +712,7 @@
 
     function tryNext(){
       if(attempt >= exts.length){
-        wrap.remove();
+        sectionEl.classList.add('hidden');
         return;
       }
       audio.src = `${VOICE_FOLDER}${encodeURIComponent(item.name.toLowerCase())}.${exts[attempt]}`;
@@ -705,18 +726,25 @@
   const backdrop = document.getElementById('modalBackdrop');
   const modalNum = document.getElementById('modalNum');
   const modalPhoto = document.getElementById('modalPhoto');
-  const modalMessage = document.getElementById('modalMessage');
+  const modalVoiceSection = document.getElementById('modalVoiceSection');
+  const modalVoiceSlot = document.getElementById('modalVoiceSlot');
+  const modalMemoryText = document.getElementById('modalMemoryText');
   const modalMedia = document.getElementById('modalMedia');
   const closeBtn = document.getElementById('modalClose');
 
   function openItem(item, btn){
     modalNum.textContent = item.name;
+
     modalPhoto.innerHTML = '';
     modalPhoto.classList.remove('hidden');
     attachPhoto(modalPhoto, item.name, '2', true);
-    modalMessage.textContent = item.memory;
+
+    modalVoiceSlot.innerHTML = '';
+    modalVoiceSection.classList.remove('hidden');
+    attachVoice(modalVoiceSection, modalVoiceSlot, item);
+
+    modalMemoryText.textContent = item.memory;
     modalMedia.innerHTML = buildMedia(item);
-    attachVoice(modalMedia, item);
     backdrop.classList.add('show');
     btn.classList.add('opened');
   }
