@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-
+ 
   :root{
     --bg-1: #fffaf0;
     --bg-2: #fffaf0;
@@ -372,11 +372,10 @@
   }
 
   .modal .num{
-    font-size: 22px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--ink);
-    text-align: center;
-    margin: 0 0 14px;
+    margin: 0 0 10px;
   }
 
   .modal-photo{
@@ -396,21 +395,6 @@
   }
 
   .modal-photo.hidden{
-    display: none;
-  }
-
-  .field-label{
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--ink);
-    margin: 0 0 6px;
-  }
-
-  .modal-voice{
-    margin-bottom: 18px;
-  }
-
-  .modal-voice.hidden{
     display: none;
   }
 
@@ -476,7 +460,6 @@
     }
     .modal-backdrop.show .modal{ transform: translateY(0) scale(1); }
     .modal p.message{ font-size: 15px; }
-    .field-label{ font-size: 15px; }
   }
 
 </style>
@@ -511,14 +494,7 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalNum">
       <p class="num" id="modalNum"></p>
       <div class="modal-photo hidden" id="modalPhoto"></div>
-      <div class="modal-voice hidden" id="modalVoiceSection">
-        <p class="field-label">a birthday wish:</p>
-        <div id="modalVoiceSlot"></div>
-      </div>
-      <div class="modal-memory">
-        <p class="field-label">a treasured memory:</p>
-        <p class="message" id="modalMemoryText"></p>
-      </div>
+      <p class="message" id="modalMessage"></p>
       <div class="media-block" id="modalMedia"></div>
       <button class="close-btn" id="modalClose">Close</button>
     </div>
@@ -527,8 +503,8 @@
 <script>
 
   const BIRTHDAY_NAME = "Riazul";
-  const PHOTO_FOLDER = "./photos/";
-  const VOICE_FOLDER = "./voice/";
+  const PHOTO_FOLDER = "photos/";
+  const VOICE_FOLDER = "voice/";
 
   const FRIENDS = [
     { name: "AJ", memory: "Write their favourite memory here.", song: "", voice: "" },
@@ -543,7 +519,7 @@
     { name: "hamza", memory: "Write their favourite memory here.", song: "https://open.spotify.com/track/3zpGIFghtnVlwMXWyKW474?si=91fd4835ff3b4739", voice: "" },
     { name: "hazel", memory: "Write their favourite memory here.", song: "https://open.spotify.com/track/0NTMtAO2BV4tnGvw9EgBVq?si=85e73454a8e34ac1", voice: "" },
     { name: "jen", memory: "Write their favourite memory here.", song: "", voice: "" },
-    { name: "katsie", memory: "trauma bonding in the swifty sixties!!!! my first power hour on that silly side bike and riazul coming over mid weights track being like NO YOU GOTS THIS. and ofc all the trauma that continued with the sundays at OC", song: "https://open.spotify.com/track/3hUxzQpSfdDqwM3ZTFQY0K?si=1a824e7802214ab0", voice: "" },
+    { name: "katsie", memory: "trauma bonding in the swifty sixties!!!! my first power hour on that silly side bike and riazul coming over mid weights track being like NO YOU GOTS THIS. and ofc a[...]
     { name: "lu", memory: "Write their favourite memory here.", song: "", voice: "" },
     { name: "mel", memory: "Write their favourite memory here.", song: "https://open.spotify.com/track/2YmJZWGcy0yONMCsEKOuVD?si=bce89485d4ac470b", voice: "" },
     { name: "mohim", memory: "Write their favourite memory here.", song: "", voice: "" },
@@ -555,7 +531,7 @@
     { name: "tala", memory: "Write their favourite memory here.", song: "", voice: "" },
     { name: "vi", memory: "Write their favourite memory here.", song: "", voice: "" },
     { name: "vivienne", memory: "Write their favourite memory here.", song: "", voice: "" },
-    { name: "zeshan", memory: "when you taught the Brown Game Strong class. You looked so happy to teach a class with those songs in front of so many South Asians. It was wonderful to see", song: "https://open.spotify.com/track/4kte3OcW800TPvOVgrLLj8?si=e8d375edbb314185", voice: "" }
+    { name: "zeshan", memory: "when you taught the Brown Game Strong class. You looked so happy to teach a class with those songs in front of so many South Asians. It was wonderful to see", song: "", voice: "" }
   ];
 
   const FAMILY = [
@@ -697,10 +673,13 @@
     return html;
   }
 
-  function attachVoice(sectionEl, slotEl, item){
+  function attachVoice(container, item){
+    const wrap = document.createElement('div');
+    wrap.className = 'media-block';
     const audio = document.createElement('audio');
     audio.controls = true;
-    slotEl.appendChild(audio);
+    wrap.appendChild(audio);
+    container.appendChild(wrap);
 
     if(item.voice){
       audio.src = item.voice;
@@ -712,7 +691,7 @@
 
     function tryNext(){
       if(attempt >= exts.length){
-        sectionEl.classList.add('hidden');
+        wrap.remove();
         return;
       }
       audio.src = `${VOICE_FOLDER}${encodeURIComponent(item.name.toLowerCase())}.${exts[attempt]}`;
@@ -726,25 +705,18 @@
   const backdrop = document.getElementById('modalBackdrop');
   const modalNum = document.getElementById('modalNum');
   const modalPhoto = document.getElementById('modalPhoto');
-  const modalVoiceSection = document.getElementById('modalVoiceSection');
-  const modalVoiceSlot = document.getElementById('modalVoiceSlot');
-  const modalMemoryText = document.getElementById('modalMemoryText');
+  const modalMessage = document.getElementById('modalMessage');
   const modalMedia = document.getElementById('modalMedia');
   const closeBtn = document.getElementById('modalClose');
 
   function openItem(item, btn){
     modalNum.textContent = item.name;
-
     modalPhoto.innerHTML = '';
     modalPhoto.classList.remove('hidden');
     attachPhoto(modalPhoto, item.name, '2', true);
-
-    modalVoiceSlot.innerHTML = '';
-    modalVoiceSection.classList.remove('hidden');
-    attachVoice(modalVoiceSection, modalVoiceSlot, item);
-
-    modalMemoryText.textContent = item.memory;
+    modalMessage.textContent = item.memory;
     modalMedia.innerHTML = buildMedia(item);
+    attachVoice(modalMedia, item);
     backdrop.classList.add('show');
     btn.classList.add('opened');
   }
