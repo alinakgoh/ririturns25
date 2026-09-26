@@ -310,8 +310,8 @@
 
   .polaroid-caption{
     margin-top: 8px;
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     color: var(--ink);
     text-align: center;
     white-space: nowrap;
@@ -511,206 +511,314 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalNum">
       <p class="num" id="modalNum"></p>
       <div class="modal-photo hidden" id="modalPhoto"></div>
-      <div class="modal-voice hidden" id="modalVoice">
+      <div class="modal-voice hidden" id="modalVoiceSection">
         <p class="field-label">a birthday wish:</p>
-        <audio id="voiceAudio" controls style="width: 100%;"></audio>
+        <div id="modalVoiceSlot"></div>
       </div>
-      <p class="message" id="modalMessage"></p>
-      <div class="field-label" id="memoryLabel" style="display: none;">a treasured memory:</div>
+      <div class="modal-memory">
+        <p class="field-label">a treasured memory:</p>
+        <p class="message" id="modalMemoryText"></p>
+      </div>
       <div class="media-block" id="modalMedia"></div>
       <button class="close-btn" id="modalClose">Close</button>
     </div>
   </div>
 
-  <script>
-    // Data structure to store entries
-    const entries = [
-      { id: 1, name: "alina", type: "photo", photo: "photos/alina1.jpeg" },
-      { id: 2, name: "katsie", type: "photo", photo: "photos/katsie2.jpg" },
-      { id: 3, name: "noah 1", type: "photo", photo: "photos/noah1.jpeg" },
-      { id: 4, name: "noah 2", type: "photo", photo: "photos/noah2.jpeg", voice: "voice/noah.m4a", memory: "you're the best. (in the most annoying way possible.)" },
-      { id: 5, name: "steph 1", type: "photo", photo: "photos/steph1.jpeg" },
-      { id: 6, name: "steph 2", type: "photo", photo: "photos/steph2.jpeg" },
-      { id: 7, name: "zeshan", type: "photo", photo: "photos/zeshan1.jpg" },
-    ];
+<script>
 
-    const introTexts = [
-      "happy 25th birthday to riazul amina khan! 🎂",
-      "we're so incredibly proud of you.",
-      "here are 25 reasons why (but really there are way more):",
-    ];
+  const BIRTHDAY_NAME = "Riazul";
+  const PHOTO_FOLDER = "ririturns25/photos/";
+  const VOICE_FOLDER = "ririturns25/voice/";
 
-    let currentIntroIndex = 0;
-    let isAnimating = false;
+  const FRIENDS = [
+    { name: "AJ", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "alina", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "alyssa", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "becs", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "camilla", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "cara", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "emily", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "eva", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "fran", memory: "Write their favourite memory here.", song: "https://open.spotify.com/track/4rYLpaNFzt6pkQnrCvVHUw?si=b951c7fc3ed6433f", voice: "" },
+    { name: "hamza", memory: "Write their favourite memory here.", song: "https://open.spotify.com/track/3zpGIFghtnVlwMXWyKW474?si=91fd4835ff3b4739", voice: "" },
+    { name: "hazel", memory: "Write their favourite memory here.", song: "https://open.spotify.com/track/0NTMtAO2BV4tnGvw9EgBVq?si=85e73454a8e34ac1", voice: "" },
+    { name: "jen", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "katsie", memory: "trauma bonding in the swifty sixties!!!! my first power hour on that silly side bike and riazul coming over mid weights track being like NO YOU GOTS THIS. and ofc all the energy and hype you bring to everything!", song: "", voice: "" },
+    { name: "lu", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "mel", memory: "Write their favourite memory here.", song: "https://open.spotify.com/track/2YmJZWGcy0yONMCsEKOuVD?si=bce89485d4ac470b", voice: "" },
+    { name: "mohim", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "perdi", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "queenie", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "shanti", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "soph", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "steph", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "tala", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "vi", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "vivienne", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "zeshan", memory: "when you taught the Brown Game Strong class. You looked so happy to teach a class with those songs in front of so many South Asians. It was wonderful to see", song: "", voice: "" }
+  ];
 
-    const introScreen = document.getElementById('introScreen');
-    const introText = document.getElementById('introText');
-    const introDots = document.getElementById('introDots');
-    const introBack = document.getElementById('introBack');
-    const introSkip = document.getElementById('introSkip');
-    const field = document.getElementById('field');
-    const bonusField = document.getElementById('bonusField');
+  const FAMILY = [
+    { name: "nazma", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "noah", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "Family 3", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "Family 4", memory: "Write their favourite memory here.", song: "", voice: "" },
+    { name: "Family 5", memory: "Write their favourite memory here.", song: "", voice: "" }
+  ];
 
-    const modalBackdrop = document.getElementById('modalBackdrop');
-    const modalNum = document.getElementById('modalNum');
-    const modalPhoto = document.getElementById('modalPhoto');
-    const modalMessage = document.getElementById('modalMessage');
-    const modalMedia = document.getElementById('modalMedia');
-    const modalClose = document.getElementById('modalClose');
-    const modalVoice = document.getElementById('modalVoice');
-    const voiceAudio = document.getElementById('voiceAudio');
-    const memoryLabel = document.getElementById('memoryLabel');
+  document.getElementById('heroSub').textContent =
+    `happy birthday ${BIRTHDAY_NAME.toLowerCase()}!`;
 
-    function initIntro() {
-      createIntroDots();
-      showIntroText();
-      introScreen.addEventListener('click', nextIntroText);
-      introBack.addEventListener('click', prevIntroText);
-      introSkip.addEventListener('click', skipIntro);
-    }
+  const INTRO = [
+    `hey riazul`,
+    `a little birdie told me you're 25`,
+    `how's that pre-frontal cortex feeling?`,
+    `you don't have to answer that.`,
+    `anyway...`,
+    `it turns out some friends and loved ones have birthday wishes to share with you...`,
+    `25 to be exact.`,
+    `if you just said "wtf" for the tenth time, we're right on track`,
+    `anyway, ON TO THE MESSAGES!`,
+    `oh and -`,
+    `happy birthday baby boy. we love you so endlessly and cannot wait to cheer you on in all the amazing things you'll do in your next lap around the sun.`
+  ];
 
-    function createIntroDots() {
-      introDots.innerHTML = '';
-      introTexts.forEach((_, i) => {
-        const dot = document.createElement('span');
-        if (i === 0) dot.classList.add('active');
-        introDots.appendChild(dot);
-      });
-    }
+  const introScreen = document.getElementById('introScreen');
+  const introText = document.getElementById('introText');
+  const introHint = document.getElementById('introHint');
+  const introDots = document.getElementById('introDots');
+  const introBack = document.getElementById('introBack');
+  const introSkip = document.getElementById('introSkip');
+  let introIndex = 0;
 
-    function showIntroText() {
-      if (currentIntroIndex < introTexts.length) {
-        introText.textContent = introTexts[currentIntroIndex];
-        introText.classList.remove('fade');
-        updateIntroDots();
-        introBack.classList.toggle('visible', currentIntroIndex > 0);
-      }
-    }
+  INTRO.forEach(() => {
+    const dot = document.createElement('span');
+    introDots.appendChild(dot);
+  });
 
-    function updateIntroDots() {
-      const dots = introDots.querySelectorAll('span');
-      dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === currentIntroIndex);
-      });
-    }
+  const prefersReducedMotionForIntro = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function nextIntroText() {
-      if (isAnimating) return;
-      isAnimating = true;
-      if (currentIntroIndex < introTexts.length - 1) {
-        introText.classList.add('fade');
-        setTimeout(() => {
-          currentIntroIndex++;
-          showIntroText();
-          isAnimating = false;
-        }, 150);
-      } else {
-        skipIntro();
-      }
-    }
-
-    function prevIntroText(e) {
-      e.stopPropagation();
-      if (isAnimating) return;
-      isAnimating = true;
-      if (currentIntroIndex > 0) {
-        introText.classList.add('fade');
-        setTimeout(() => {
-          currentIntroIndex--;
-          showIntroText();
-          isAnimating = false;
-        }, 150);
-      }
-    }
-
-    function skipIntro() {
-      introScreen.classList.add('hidden');
-      renderCards();
-    }
-
-    function renderCards() {
-      field.innerHTML = '';
-      entries.forEach((entry) => {
-        const card = createCard(entry);
-        field.appendChild(card);
-      });
-    }
-
-    function createCard(entry) {
-      const card = document.createElement('button');
-      card.className = 'polaroid';
-      card.setAttribute('type', 'button');
-
-      const photoDiv = document.createElement('div');
-      photoDiv.className = 'polaroid-photo';
-
-      if (entry.photo) {
-        const img = document.createElement('img');
-        img.src = entry.photo;
-        img.alt = entry.name;
-        img.onerror = () => {
-          photoDiv.innerHTML = `<span class="fallback-initial">${entry.name.charAt(0).toUpperCase()}</span>`;
-        };
-        photoDiv.appendChild(img);
-      }
-
-      const caption = document.createElement('p');
-      caption.className = 'polaroid-caption';
-      caption.textContent = entry.name;
-
-      card.appendChild(photoDiv);
-      card.appendChild(caption);
-
-      card.addEventListener('click', () => openModal(entry, card));
-
-      return card;
-    }
-
-    function openModal(entry, card) {
-      card.classList.add('opened');
-      modalNum.textContent = `#${entry.id}`;
-      modalPhoto.classList.add('hidden');
-      modalMessage.textContent = '';
-      modalMedia.innerHTML = '';
-      modalVoice.classList.add('hidden');
-      memoryLabel.style.display = 'none';
-
-      if (entry.photo) {
-        modalPhoto.classList.remove('hidden');
-        const img = document.createElement('img');
-        img.src = entry.photo;
-        img.alt = entry.name;
-        modalPhoto.innerHTML = '';
-        modalPhoto.appendChild(img);
-      }
-
-      if (entry.voice) {
-        modalVoice.classList.remove('hidden');
-        voiceAudio.src = entry.voice;
-      }
-
-      if (entry.memory) {
-        memoryLabel.style.display = 'block';
-        modalMessage.textContent = entry.memory;
-      }
-
-      modalBackdrop.classList.add('show');
-    }
-
-    function closeModal() {
-      modalBackdrop.classList.remove('show');
-      document.querySelectorAll('.polaroid').forEach(card => {
-        card.classList.remove('opened');
-      });
-    }
-
-    modalClose.addEventListener('click', closeModal);
-    modalBackdrop.addEventListener('click', (e) => {
-      if (e.target === modalBackdrop) closeModal();
+  function renderIntro(){
+    introText.textContent = INTRO[introIndex];
+    introHint.textContent = introIndex === INTRO.length - 1
+      ? 'tap to open your messages'
+      : 'tap to continue';
+    Array.from(introDots.children).forEach((dot, i) => {
+      dot.classList.toggle('active', i === introIndex);
     });
+    introBack.classList.toggle('visible', introIndex > 0);
+  }
 
-    // Initialize
-    initIntro();
-  </script>
+  function stepIntro(newIndex){
+    if(prefersReducedMotionForIntro){
+      introIndex = newIndex;
+      renderIntro();
+      return;
+    }
+    introText.classList.add('fade');
+    setTimeout(() => {
+      introIndex = newIndex;
+      renderIntro();
+      introText.classList.remove('fade');
+    }, 150);
+  }
+
+  function advanceIntro(){
+    if(introIndex >= INTRO.length - 1){
+      introScreen.classList.add('hidden');
+      return;
+    }
+    stepIntro(introIndex + 1);
+  }
+
+  function goBackIntro(){
+    if(introIndex <= 0) return;
+    stepIntro(introIndex - 1);
+  }
+
+  introBack.addEventListener('click', (e) => {
+    e.stopPropagation();
+    goBackIntro();
+  });
+
+  introSkip.addEventListener('click', (e) => {
+    e.stopPropagation();
+    introScreen.classList.add('hidden');
+  });
+
+  introScreen.addEventListener('click', advanceIntro);
+  introScreen.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight'){
+      e.preventDefault();
+      advanceIntro();
+    } else if(e.key === 'ArrowLeft'){
+      e.preventDefault();
+      goBackIntro();
+    }
+  });
+
+  renderIntro();
+
+  const field = document.getElementById('field');
+  const bonusField = document.getElementById('bonusField');
+
+  function spotifyEmbed(url){
+    const m = url.match(/open\.spotify\.com\/(track|album|playlist)\/([a-zA-Z0-9]+)/);
+    if(!m) return null;
+    return `<iframe src="https://open.spotify.com/embed/${m[1]}/${m[2]}" height="80" allow="encrypted-media"></iframe>`;
+  }
+
+  function youtubeEmbed(url){
+    let id = null;
+    let m = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+    if(m) id = m[1];
+    if(!id){
+      m = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
+      if(m) id = m[1];
+    }
+    if(!id){
+      m = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/);
+      if(m) id = m[1];
+    }
+    if(!id) return null;
+    return `<iframe src="https://www.youtube.com/embed/${id}" height="200" allow="autoplay; encrypted-media"></iframe>`;
+  }
+
+  function buildMedia(item){
+    let html = '';
+    if(item.song){
+      const embed = spotifyEmbed(item.song) || youtubeEmbed(item.song);
+      if(embed){
+        html += `<div class="media-block">${embed}</div>`;
+      } else {
+        html += `<div class="media-block"><a class="song-link" href="${item.song}" target="_blank" rel="noopener">Listen to the song ↗</a></div>`;
+      }
+    }
+    return html;
+  }
+
+  function attachVoice(sectionEl, slotEl, item){
+    const audio = document.createElement('audio');
+    audio.controls = true;
+    slotEl.appendChild(audio);
+
+    if(item.voice){
+      audio.src = item.voice;
+      return;
+    }
+
+    const exts = ['mp3', 'm4a', 'wav', 'ogg'];
+    let attempt = 0;
+
+    function tryNext(){
+      if(attempt >= exts.length){
+        sectionEl.classList.add('hidden');
+        return;
+      }
+      audio.src = `${VOICE_FOLDER}${encodeURIComponent(item.name.toLowerCase())}.${exts[attempt]}`;
+      attempt++;
+    }
+
+    audio.addEventListener('error', tryNext);
+    tryNext();
+  }
+
+  const backdrop = document.getElementById('modalBackdrop');
+  const modalNum = document.getElementById('modalNum');
+  const modalPhoto = document.getElementById('modalPhoto');
+  const modalVoiceSection = document.getElementById('modalVoiceSection');
+  const modalVoiceSlot = document.getElementById('modalVoiceSlot');
+  const modalMemoryText = document.getElementById('modalMemoryText');
+  const modalMedia = document.getElementById('modalMedia');
+  const closeBtn = document.getElementById('modalClose');
+
+  function openItem(item, btn){
+    modalNum.textContent = item.name;
+
+    modalPhoto.innerHTML = '';
+    modalPhoto.classList.remove('hidden');
+    attachPhoto(modalPhoto, item.name, '2', true);
+
+    modalVoiceSlot.innerHTML = '';
+    modalVoiceSection.classList.remove('hidden');
+    attachVoice(modalVoiceSection, modalVoiceSlot, item);
+
+    modalMemoryText.textContent = item.memory;
+    modalMedia.innerHTML = buildMedia(item);
+    backdrop.classList.add('show');
+    btn.classList.add('opened');
+  }
+
+  function closeModal(){
+    backdrop.classList.remove('show');
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', (e) => {
+    if(e.target === backdrop) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') closeModal();
+  });
+
+  function attachPhoto(container, name, suffix, optional){
+    const exts = ['jpg', 'jpeg', 'png', 'webp'];
+    const key = encodeURIComponent(name + suffix);
+    const img = document.createElement('img');
+    img.alt = name;
+    let attempt = 0;
+
+    function tryNext(){
+      if(attempt >= exts.length){
+        img.remove();
+        if(optional){
+          container.classList.add('hidden');
+        } else {
+          const fallback = document.createElement('span');
+          fallback.className = 'fallback-initial';
+          fallback.textContent = (name.trim()[0] || '?').toUpperCase();
+          fallback.style.fontSize = Math.max(16, Math.round(container.clientWidth * 0.32)) + 'px';
+          container.appendChild(fallback);
+        }
+        return;
+      }
+      img.src = `${PHOTO_FOLDER}${key}.${exts[attempt]}`;
+      attempt++;
+    }
+
+    img.addEventListener('error', tryNext);
+    container.appendChild(img);
+    tryNext();
+  }
+
+  function buildWall(container, list){
+    list.forEach((item, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'polaroid';
+      btn.type = 'button';
+      btn.setAttribute('aria-label', `Open ${item.name}'s photo`);
+      btn.addEventListener('click', () => openItem(item, btn));
+
+      const photo = document.createElement('span');
+      photo.className = 'polaroid-photo';
+      attachPhoto(photo, item.name, '1', false);
+
+      const caption = document.createElement('span');
+      caption.className = 'polaroid-caption';
+      caption.textContent = item.name;
+
+      btn.appendChild(photo);
+      btn.appendChild(caption);
+      container.appendChild(btn);
+
+      const rotation = (Math.sin(i * 17.233) * 0.5) * 8;
+      btn.style.transform = `rotate(${rotation}deg)`;
+    });
+  }
+
+  buildWall(field, FRIENDS);
+  buildWall(bonusField, FAMILY);
+
+</script>
 </body>
 </html>
