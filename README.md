@@ -57,11 +57,13 @@ photos/Priya2.jpg   →  BACK photo — shown centered, just below her name,
                         when the polaroid is tapped open
 ```
 
-Put both jpgs in a folder called `photos` next to `index.html`, named
-**exactly** like the matching `name` field plus `1` or `2` — same spelling,
-same capital letters. Capitalization matters once this is live on GitHub
-Pages, even if it doesn't matter on your own computer. `.jpeg`, `.png`, and
-`.webp` all work too, not just `.jpg`.
+Put both browser-compatible images in a folder called `photos` next to
+`index.html`, named **exactly** like the matching `name` field plus `1` or
+`2` — same spelling, same capital letters. Capitalization matters once this
+is live on GitHub Pages, even if it doesn't matter on your own computer.
+`.jpeg`, `.png`, and `.webp` all work too, not just `.jpg`. Export HEIC
+photos as JPEG before uploading: renaming a `.heic` file to `.jpeg` does not
+convert it and browsers will not display it.
 
 - Missing **front** photo → that polaroid shows a soft placeholder with
   the person's initial instead of a broken image.
