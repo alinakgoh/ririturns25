@@ -320,21 +320,6 @@
     max-width: 100%;
   }
 
-  .polaroid.opened{
-    opacity: 0.55;
-  }
-
-  .polaroid.opened::after{
-    content: "";
-    position: absolute;
-    bottom: 7px;
-    right: 9px;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--ink);
-  }
-
   .modal-backdrop{
     position: fixed;
     inset: 0;
@@ -424,6 +409,14 @@
 
   .modal .media-block{
     margin-bottom: 16px;
+  }
+
+  .track-note{
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 12px;
+    white-space: pre-wrap;
+    color: var(--ink);
   }
 
   .modal .media-block iframe{
@@ -685,7 +678,10 @@
   }
 
   function buildMedia(item){
-    let html = '';
+    let html = '<p class="field-label">a meaningful track:</p>';
+    if(item.trackNote){
+      html += `<p class="track-note">${escapeHtml(item.trackNote)}</p>`;
+    }
     if(item.song){
       const embed = spotifyEmbed(item.song) || youtubeEmbed(item.song);
       if(embed){
@@ -695,6 +691,15 @@
       }
     }
     return html;
+  }
+
+  function escapeHtml(value){
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
   }
 
   function attachVoice(sectionEl, slotEl, item){
@@ -746,7 +751,6 @@
     modalMemoryText.textContent = item.memory;
     modalMedia.innerHTML = buildMedia(item);
     backdrop.classList.add('show');
-    btn.classList.add('opened');
   }
 
   function closeModal(){
