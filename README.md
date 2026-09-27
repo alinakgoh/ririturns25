@@ -27,7 +27,7 @@ for the block marked:
 
 - **`BIRTHDAY_NAME`** — the birthday person's name. The hero subtext
   ("happy birthday ___!") is built from this automatically.
-- **`FRIENDS`** — one `{ name, memory, song, voice }` entry per polaroid in
+- **`FRIENDS`** — one `{ name, memory, song, trackNote, voice }` entry per polaroid in
   the main 25-person wall.
 - **`FAMILY`** — same format, for the 5 bonus polaroids that appear in the
   surprise section further down the page.
@@ -37,6 +37,9 @@ For each entry:
     see Photos and Voice notes below.
   - `memory` — their memory, as plain text.
   - `song` — a Spotify or YouTube link, or `""` if none.
+  - `trackNote` — an optional short note that appears between "a meaningful
+    track:" and the song. Leave it out or set it to `""` to show only the
+    heading and song.
   - `voice` — leave this as `""`. It's found automatically (see Voice
     notes). Only fill it in if you want to link an external audio URL for
     that one person instead of uploading a file.
