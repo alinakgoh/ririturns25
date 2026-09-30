@@ -1,7 +1,7 @@
 # 25 for 25
 
 Riazul's birthday site: a click-through intro (with a back arrow and a
-skip button), a wall of 25 friend polaroids, a surprise bonus section of 5
+skip button), a wall of 25 friend polaroids, a surprise bonus section of 4
 family polaroids further down, and a popup for each person with their
 memory, a song, and a voice note.
 
@@ -29,7 +29,7 @@ for the block marked:
   ("happy birthday ___!") is built from this automatically.
 - **`FRIENDS`** — one `{ name, memory, song, trackNote, voice }` entry per polaroid in
   the main 25-person wall.
-- **`FAMILY`** — same format, for the 5 bonus polaroids that appear in the
+- **`FAMILY`** — same format, for the bonus polaroids that appear in the
   surprise section further down the page.
 
 For each entry:
